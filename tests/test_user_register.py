@@ -1,25 +1,11 @@
 import requests
 import pytest
-from datetime import datetime
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
 
 class TestUserRegister(BaseCase):
-    email = ''
-    def setup(self):
-        base_part = "learnqa"
-        domain = "example.com"
-        random_part = datetime.now().strftime("$m%d%Y%H%M%S")
-        self.email = f"{base_part}{random_part}@{domain}"
-
     def test_create_user(self):
-        data = {
-            'password': '123',
-            'username': 'learnqa',
-            'firstName': 'learnqa',
-            'lastName': 'learnqa',
-            'email': self.email
-        }
+        data = self.prepare_registration_data()
 
         response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
         Assertions.assert_code_status(response, 200)
@@ -27,13 +13,7 @@ class TestUserRegister(BaseCase):
 
     def test_create_user_with_existing_email(self):
         email = 'vinkotov@example.com'
-        data = {
-            'password': '123',
-            'username': 'learnqa',
-            'firstName': 'learnqa',
-            'lastName': 'learnqa',
-            'email': email
-        }
+        data = self.prepare_registration_data(email)
 
         response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
         Assertions.assert_code_status(response, 400)
@@ -41,23 +21,17 @@ class TestUserRegister(BaseCase):
 
     def test_create_user_with_invalid_email(self):
         email = 'vinkotovexample.com'
-        data = {
-            'password': 'valid_pass',
-            'username': 'learnqa_valid',
-            'firstName': 'learnqa_valid',
-            'lastName': 'learnqa_valid',
-            'email': email
-        }
+        data = self.prepare_registration_data(email)
 
         response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
         Assertions.assert_code_status(response, 400)
         assert response.content.decode("utf-8") == f"Invalid email format", f"Unexpected content received: {response.content}"
 
     test_data = [
-        ({'password': 'valid_pass', 'firstName': 'valid_first_name', 'lastName': 'learnqa_valid', 'email': email}),
-        ({'username': 'valid_username', 'firstName': 'valid_first_name', 'lastName': 'learnqa_valid', 'email': email}),
-        ({'username': 'valid_username', 'password': 'valid_pass', 'lastName': 'learnqa_valid', 'email': email}),
-        ({'username': 'valid_username', 'password': 'valid_pass', 'firstName': 'valid_first_name', 'email': email}),
+        ({'password': 'valid_pass', 'firstName': 'valid_first_name', 'lastName': 'learnqa_valid', 'email': 'some_valid@mail.com'}),
+        ({'username': 'valid_username', 'firstName': 'valid_first_name', 'lastName': 'learnqa_valid', 'email': 'some_valid_2@mail.com'}),
+        ({'username': 'valid_username', 'password': 'valid_pass', 'lastName': 'learnqa_valid', 'email': 'some_valid_3@mail.com'}),
+        ({'username': 'valid_username', 'password': 'valid_pass', 'firstName': 'valid_first_name', 'email': 'some_valid_4@mail.com'}),
         ({'username': 'valid_username', 'password': 'valid_pass', 'firstName': 'valid_first_name', 'lastName': 'learnqa_valid'})
     ]
 
@@ -73,7 +47,7 @@ class TestUserRegister(BaseCase):
             'password': 'valid_pass',
             'firstName': 'A',
             'lastName': 'learnqa_valid',
-            'email': self.email
+            'email': self.generate_unique_email()
         }
 
         response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
@@ -86,7 +60,7 @@ class TestUserRegister(BaseCase):
             'password': 'valid_pass',
             'firstName': 'D2c0DYJ5eaBiH54EDnS67ryOWBoj7qIfwLNEKUpccltGT1IdGbwAw1icys29VKdUkpJpqLYUYsNwSPInO15j7LtwUX5BSgEaTrqhPlwyHOItAlHcjAHdsArFYfO9p6iB0ThDFih3nQXO88v7ZXvsRHauUmT3DAbwsROEA9aVEggED8R4BxZx0d97BEOuGgdRXSHksLgtmSPFnuCYLvGJxATXorLd4AMnI89kWswfV84iYgRAYZCTsRky02i',
             'lastName': 'learnqa_valid',
-            'email': self.email
+            'email': self.generate_unique_email()
         }
 
         response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
