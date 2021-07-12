@@ -64,7 +64,6 @@ class TestUserEdit(BaseCase):
 
         Assertions.assert_code_status(edit_response, 400)
 
-    @pytest.mark.xfail(reason="Security issue, user can edit data of other users without being authenticated, issue is reported in ticket #1717")
     def test_edit_user_as_other_user(self):
         # REGISTER FIRST USER
         register_data_first_user = self.prepare_registration_data()
@@ -97,14 +96,19 @@ class TestUserEdit(BaseCase):
         token_second_user = self.get_header(login_response_second_user, "x-csrf-token")
 
         # EDIT FIRST USER
-        new_name = "Edited name"
-        edit_response = requests.put(f"https://playground.learnqa.ru/api/user/{first_user_id}",
+        new_user_name = "Edited username"
+        requests.put(f"https://playground.learnqa.ru/api/user/{first_user_id}",
                                      headers={"x-csrf-token": token_second_user},
                                      cookies={"auth_sid": auth_sid_second_user},
-                                     data={"firstName": new_name})
+                                     data={"username": new_user_name})
 
-        assert edit_response.status_code == 400,\
-            f"User can edit data as logged in as other user"
+        # GET
+        get_response = requests.get(f"https://playground.learnqa.ru/api/user/{first_user_id}")
+
+        Assertions.assert_json_value_by_name(get_response,
+                                             "username",
+                                             "learnqa",
+                                             f"Username value was changed by non-authorized user!")
 
     def test_edit_user_invalid_email(self):
         # REGISTER
