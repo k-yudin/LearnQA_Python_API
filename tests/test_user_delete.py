@@ -1,8 +1,13 @@
+import allure
 from lib.my_requests import MyRequests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
 
+@allure.epic("Delete users cases")
 class TestUserDelete(BaseCase):
+
+    @allure.description("Test tries to delete user from the group that is not allowed to de done")
+    @allure.severity(allure.severity_level.NORMAL)
     def test_delete_user_from_restricted_group(self):
         data = {
             'email': 'vinkotov@example.com',
@@ -25,6 +30,8 @@ class TestUserDelete(BaseCase):
         assert delete_response.content.decode("utf-8") == "Please, do not delete test users with ID 1, 2, 3, 4 or 5.",\
             f"Unexpected content received: {delete_response.content}"
 
+    @allure.description("Test for successful user delete")
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_delete_user_successfully(self):
         # REGISTER
         register_data = self.prepare_registration_data()
@@ -65,6 +72,9 @@ class TestUserDelete(BaseCase):
         assert get_response.content.decode("utf-8") == "User not found",\
             f"Unexpected content received: {get_response.content}"
 
+    @allure.description("Test that tries to delete user being authorized as other user")
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.tag("Security")
     def test_delete_user_as_other_user(self):
         # REGISTER FIRST USER
         register_data_first_user = self.prepare_registration_data()

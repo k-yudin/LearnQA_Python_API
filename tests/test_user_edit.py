@@ -1,8 +1,13 @@
+import allure
 from lib.my_requests import MyRequests
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
 
+@allure.epic("Edit user's info cases")
 class TestUserEdit(BaseCase):
+
+    @allure.description("Test that modifies first name parameter of newly created user")
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_edit_just_created_user(self):
         # REGISTER
         register_data = self.prepare_registration_data()
@@ -45,7 +50,8 @@ class TestUserEdit(BaseCase):
                                              new_name,
                                              "Wrong name of the user after edit")
 
-
+    @allure.description("Test that tries to edit user w/o authorization")
+    @allure.severity(allure.severity_level.NORMAL)
     def test_edit_user_no_auth(self):
         register_data = self.prepare_registration_data()
         response = MyRequests.post("/user/", data=register_data)
@@ -63,6 +69,9 @@ class TestUserEdit(BaseCase):
 
         Assertions.assert_code_status(edit_response, 400)
 
+    @allure.description("Test that tries to edit user being authorized as other user")
+    @allure.severity(allure.severity_level.NORMAL)
+    @allure.tag("Security")
     def test_edit_user_as_other_user(self):
         # REGISTER FIRST USER
         register_data_first_user = self.prepare_registration_data()
@@ -109,6 +118,8 @@ class TestUserEdit(BaseCase):
                                              "learnqa",
                                              f"Username value was changed by non-authorized user!")
 
+    @allure.description("Test that tries to update user info by specifying invalid email")
+    @allure.severity(allure.severity_level.NORMAL)
     def test_edit_user_invalid_email(self):
         # REGISTER
         register_data = self.prepare_registration_data()
@@ -143,6 +154,8 @@ class TestUserEdit(BaseCase):
         assert edit_response.content.decode("utf-8") == "Invalid email format",\
             f"Unexpected content received: {response.content}"
 
+    @allure.description("Test that tries to specify short user's first name")
+    @allure.severity(allure.severity_level.NORMAL)
     def test_edit_user_short_name(self):
         # REGISTER
         register_data = self.prepare_registration_data()
