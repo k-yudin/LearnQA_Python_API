@@ -1,13 +1,13 @@
-import requests
 import pytest
 from lib.base_case import BaseCase
 from lib.assertions import Assertions
+from lib.my_requests import MyRequests
 
 class TestUserRegister(BaseCase):
     def test_create_user(self):
         data = self.prepare_registration_data()
 
-        response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
+        response = MyRequests.post("/user/", data=data)
         Assertions.assert_code_status(response, 200)
         Assertions.assert_json_has_key(response, "id")
 
@@ -15,7 +15,7 @@ class TestUserRegister(BaseCase):
         email = 'vinkotov@example.com'
         data = self.prepare_registration_data(email)
 
-        response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
+        response = MyRequests.post("/user/", data=data)
         Assertions.assert_code_status(response, 400)
         assert response.content.decode("utf-8") == f"Users with email '{email}' already exists", f"Unexpected content received: {response.content}"
 
@@ -23,7 +23,7 @@ class TestUserRegister(BaseCase):
         email = 'vinkotovexample.com'
         data = self.prepare_registration_data(email)
 
-        response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
+        response = MyRequests.post("/user/", data=data)
         Assertions.assert_code_status(response, 400)
         assert response.content.decode("utf-8") == f"Invalid email format", f"Unexpected content received: {response.content}"
 
@@ -37,7 +37,7 @@ class TestUserRegister(BaseCase):
 
     @pytest.mark.parametrize("data", test_data)
     def test_create_user_without_username_required_field(self, data):
-        response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
+        response = MyRequests.post("/user/", data=data)
         Assertions.assert_code_status(response, 400)
         print(response.content.decode("utf-8"))
 
@@ -50,7 +50,7 @@ class TestUserRegister(BaseCase):
             'email': self.generate_unique_email()
         }
 
-        response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
+        response = MyRequests.post("/user/", data=data)
         Assertions.assert_code_status(response, 400)
         assert response.content.decode("utf-8") == "The value of 'firstName' field is too short", f"Unexpected content received: {response.content}"
 
@@ -63,6 +63,6 @@ class TestUserRegister(BaseCase):
             'email': self.generate_unique_email()
         }
 
-        response = requests.post("https://playground.learnqa.ru/api/user/", data=data)
-        Assertions.assert_code_status(response, 200)
-        Assertions.assert_json_has_key(response, "id")
+        response = MyRequests.post("/user/", data=data)
+        Assertions.assert_code_status(response, 400)
+        assert response.content.decode("utf-8") == "The value of 'firstName' field is too long", f"Unexpected content received: {response.content}"
