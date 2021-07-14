@@ -152,7 +152,7 @@ class TestUserEdit(BaseCase):
 
         Assertions.assert_code_status(edit_response, 400)
         assert edit_response.content.decode("utf-8") == "Invalid email format",\
-            f"Unexpected content received: {response.content}"
+            f"Unexpected content received: {edit_response.content}"
 
     @allure.description("Test that tries to specify short user's first name")
     @allure.severity(allure.severity_level.NORMAL)
@@ -186,13 +186,10 @@ class TestUserEdit(BaseCase):
                                          cookies={"auth_sid": auth_sid},
                                          data={"firstName": new_name})
 
-        # GET
-        get_response = MyRequests.get(f"/user/{user_id}",
-                                     headers={"x-csrf-token": token},
-                                     cookies={"auth_sid": auth_sid})
-
-        Assertions.assert_code_status(edit_response, 200)
-        Assertions.assert_json_value_by_name(get_response,
-                                             "firstName",
-                                             new_name,
-                                             "Wrong name of the user after edit")
+        Assertions.assert_code_status(edit_response, 400)
+        Assertions.assert_json_value_by_name(
+            edit_response,
+            "error",
+            "Too short value for field firstName",
+            f"Unexpected content received: {edit_response.content}"
+        )
