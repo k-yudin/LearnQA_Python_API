@@ -35,6 +35,6 @@ class BaseCase:
     def generate_unique_email(self):
         base_part = "learnqa"
         domain = "example.com"
-        random_part = datetime.now().strftime("$m%d%Y%H%M%S")
+        random_part = datetime.now().strftime("%m%d%Y%H%M%S%f")
         email = f"{base_part}{random_part}@{domain}"
         return email
