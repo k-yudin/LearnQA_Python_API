@@ -127,4 +127,11 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+# Project configuration files
 .idea/
+
+# Tests' logs
+logs/
+
+# Allure results
+test_results/
